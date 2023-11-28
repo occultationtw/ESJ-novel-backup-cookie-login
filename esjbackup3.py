@@ -24,20 +24,36 @@ symbol_list = {
     "\n": " ",
 }
 
+def get_with_cookies(url, cookie_file='cookie.txt'):
+    # Load cookies from the file
+    with open(cookie_file, 'r', encoding='utf-8') as file:
+        cookies = json.load(file)
+
+    # Create a session object
+    session = requests.Session()
+
+    # Add each cookie to the session
+    for cookie in cookies:
+        session.cookies.set(cookie['name'], cookie['value'], domain=cookie['domain'], path=cookie['path'])
+
+    # Make a GET request with the cookies
+    response = session.get(url)
+
+    return response
 
 def write_page(url, dst_file, single_file=True):
-    r = requests.get(url)
+    r = get_with_cookies(url)
     html_element = lxml.html.document_fromstring(r.text)
     if html_element.xpath('//h2'):
         title = html_element.xpath('//h2')[0]
         author = html_element.xpath('//div[@class="single-post-meta m-t-20"]/div')[0]
         content = html_element.xpath('//div[@class="forum-content mt-3"]')[0]
         if single_file:
-            with open(dst_file, 'a') as f:
+            with open(dst_file, 'a', encoding='utf-8') as f:
                 f.write('[' + title.text_content() + '] ' + author.text_content().strip() + '\n')
                 f.write(content.text_content()+'\n\n')
         else:
-            with open(dst_file, 'w') as f:
+            with open(dst_file, 'w', encoding='utf-8') as f:
                 f.write('[' + title.text_content() + '] ' + author.text_content().strip() + '\n')
                 f.write(content.text_content()+'\n\n')
 
@@ -57,7 +73,6 @@ def escape_symbol(string: str):
 
 
 if __name__ == "__main__":
-
 
     current_path = os.path.split(os.path.realpath(__file__))[0]
     novel_flag = False
@@ -84,16 +99,15 @@ if __name__ == "__main__":
 
 
     if novel_flag :
-
-        r = requests.get(url)
+        r = get_with_cookies(url)
         html_element = lxml.html.document_fromstring(r.text)
 
         novel_name = html_element.xpath('//h2[@class="p-t-10 text-normal"]')[0].text_content()
         novel_name = escape_symbol(novel_name)
         dst_filename = os.path.normpath( current_path + '/' + novel_name + '.txt')
-        with open(dst_filename, 'w') as f:
+        with open(dst_filename, 'w', encoding='utf-8') as f:
             f.write(u"書名: " + novel_name + "\n")
-        with open(dst_filename, 'a') as f:
+        with open(dst_filename, 'a', encoding='utf-8') as f:
             f.write(u"URL: " + url)
 
         novel_details_element = html_element.xpath('//ul[@class="list-unstyled mb-2 book-detail"]')[0]
@@ -102,22 +116,22 @@ if __name__ == "__main__":
             for bad_div in bad_divs:
                 bad_div.getparent().remove(bad_div)
         novel_details = novel_details_element.text_content()
-        with open(dst_filename, 'a') as f:
+        with open(dst_filename, 'a', encoding='utf-8') as f:
             f.write(novel_details)
 
         novel_outlink_element = html_element.xpath('//div[@class="row out-link"]')[0]
         if len(novel_outlink_element) != 0:
             outlink_list = novel_outlink_element.getchildren()
             for element in outlink_list:
-                with open(dst_filename, 'a') as f:
+                with open(dst_filename, 'a', encoding='utf-8') as f:
                     f.write(element.getchildren()[0].text_content() + u":\n" + element.getchildren()[0].attrib['href'] + "\n")
 
         if re.search('id="details"', r.text):
             novel_description = html_element.get_element_by_id("details").text_content()
-            with open(dst_filename, 'a') as f:
+            with open(dst_filename, 'a', encoding='utf-8') as f:
                 f.write(novel_description)
         else:
-            with open(dst_filename, 'a') as f:
+            with open(dst_filename, 'a', encoding='utf-8') as f:
                 f.write('\n\n')
 
         if re.search('id="chapterList"', r.text):
@@ -125,7 +139,7 @@ if __name__ == "__main__":
             
             for element in chapter_list:
         
-                with open(dst_filename, 'a') as f:
+                with open(dst_filename, 'a', encoding='utf-8') as f:
                     f.write(element.text_content()+'\n')
                 
                 if element.tag == 'a':
@@ -133,13 +147,12 @@ if __name__ == "__main__":
                     if re.search(r'esjzone\.cc/forum/\d+/\d+\.html', element.attrib['href']):
                         write_page(element.attrib['href'], dst_filename, single_file=True)
                     else:
-                        with open(dst_filename, 'a') as f:
+                        with open(dst_filename, 'a', encoding='utf-8') as f:
                             f.write(element.attrib['href'] + u' {非站內連結，略過}\n\n')
 
 
     if forum_flag:
-
-        r = requests.get(url)
+        r = get_with_cookies(url)
         html_element = lxml.html.document_fromstring(r.text)
         novel_name = html_element.xpath('//h2[@class="p-t-10 text-normal"]')[0].text_content()
         novel_name = escape_symbol(novel_name)
@@ -149,8 +162,8 @@ if __name__ == "__main__":
         m = re.search(r"forum_list_data\.php\?token=.+&totalRows=(\d+)&bid=(\d+)", r.text) 
         totalRows, bid = m.groups()
 
-        r = requests.get(url + 'forum_list_data.php?token=' + token + '&totalRows=' + str(totalRows) + '&bid=' + str(bid) + \
-                         '&sort=cdate&order=asc&offset=0&limit=' + str(totalRows) )
+        r = get_with_cookies(url + 'forum_list_data.php?token=' + token + '&totalRows=' + str(totalRows) + '&bid=' + str(bid) + \
+                         '&sort=cdate&order=asc&offset=0&limit=' + str(totalRows))
 
         chapter_josn = json.loads(r.text)
 
@@ -168,5 +181,4 @@ if __name__ == "__main__":
 
 
     if page_flag :
-        
         write_page(url, url.split('/')[-1].split('.')[0] + ".txt", single_file=False)
