@@ -1,1 +1,46 @@
-cookie內容放這裡
+cookie內容放這裡，以下為 cookie 內容範例，實際上會更長：
+
+[
+{
+    "domain": ".esjzone.cc",
+    "expirationDate": 1724524711.878546,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "_ga",
+    "path": "/",
+    "sameSite": "unspecified",
+    "secure": false,
+    "session": false,
+    "storeId": "0",
+    "value": "GA1.1.1525456184.172524538",
+    "id": 1
+},
+{
+    "domain": ".esjzone.cc",
+    "expirationDate": 173452451711.890258,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "_ga_6N355XR0Y6",
+    "path": "/",
+    "sameSite": "unspecified",
+    "secure": false,
+    "session": false,
+    "storeId": "0",
+    "value": "GS1.1.1704525338.1.1.1551457711.0.0.0",
+    "id": 2
+},
+{
+    "domain": ".esjzone.cc",
+    "expirationDate": 173452439.114529,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "cf_clearance",
+    "path": "/",
+    "sameSite": "no_restriction",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "B8ytkTJFfz4I4gasegsaegagae0psAtha5_GRu7Ab2w-1701191339-0-1-c89asegeb.2c1e6037.12a0cfd-0.2.1715591339",
+    "id": 3
+}
+]
