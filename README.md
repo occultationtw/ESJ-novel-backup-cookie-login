@@ -13,8 +13,8 @@ ESJZone 小說的備份工具
 
 ### 必要：cookie 登入
 本程式只支援登入後下載，將你的 cookie 存檔成 cookie.txt，放在程式主目錄下後，依照需求執行以下程式碼，cookie 會過期，如果有遇到錯誤，就更新 cookie
-
-
+  
+　
 ### 單部小說（從小說主頁備份）  
 
 範例：https://www.esjzone.cc/detail/1599746513.html
