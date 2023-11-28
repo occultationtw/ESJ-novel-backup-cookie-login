@@ -155,6 +155,7 @@ if __name__ == "__main__":
             chapter_list = html_element.get_element_by_id("chapterList").getchildren()
             
             #抓沒展開的地方
+            
             for element in chapter_list:
                 if element.tag == 'details':
                     chapter_list_b = element.getchildren()
@@ -176,20 +177,21 @@ if __name__ == "__main__":
             
             #抓展開的地方
             for element in chapter_list:
-                print('-'*50)
-                print('正在獲取內容')
-                print(f'本話標題：{element.text_content()}')
+                if element.tag != 'details':
+                    print('-'*50)
+                    print('正在獲取內容')
+                    print(f'本話標題：{element.text_content()}')
 
-                with open(dst_filename, 'a', encoding='utf-8') as f:
-                    f.write(element.text_content()+'\n')
-                
-                if element.tag == 'a':
-                    if re.search(r'esjzone\.cc/forum/\d+/\d+\.html', element.attrib['href']):
-                        write_page(element.attrib['href'], dst_filename, single_file=True)
-                        print(f'本話內文：{element.attrib["href"]}')
-                    else:
-                        with open(dst_filename, 'a', encoding='utf-8') as f:
-                            f.write(element.attrib['href'] + u' {非站內連結，略過}\n\n')
+                    with open(dst_filename, 'a', encoding='utf-8') as f:
+                        f.write(element.text_content()+'\n')
+                    
+                    if element.tag == 'a':
+                        if re.search(r'esjzone\.cc/forum/\d+/\d+\.html', element.attrib['href']):
+                            write_page(element.attrib['href'], dst_filename, single_file=True)
+                            print(f'本話內文：{element.attrib["href"]}')
+                        else:
+                            with open(dst_filename, 'a', encoding='utf-8') as f:
+                                f.write(element.attrib['href'] + u' {非站內連結，略過}\n\n')
     
 
     if forum_flag:
