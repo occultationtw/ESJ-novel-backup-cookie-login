@@ -121,7 +121,7 @@ if __name__ == "__main__":
         with open(dst_filename, 'a', encoding='utf-8') as f:
             f.write(u"URL: " + url)
 
-        #抓取每話
+        #抓取小說細節說明
         novel_details_element = html_element.xpath('//ul[@class="list-unstyled mb-2 book-detail"]')[0]
         if novel_details_element.xpath('//ul[@class="list-unstyled mb-2 book-detail"]/li/div'):
             bad_divs = novel_details_element.xpath('//ul[@class="list-unstyled mb-2 book-detail"]/li/div')
@@ -133,6 +133,7 @@ if __name__ == "__main__":
         with open(dst_filename, 'a', encoding='utf-8') as f:
             f.write(novel_details)
 
+        #抓取外部連結
         novel_outlink_element = html_element.xpath('//div[@class="row out-link"]')[0]
         if len(novel_outlink_element) != 0:
             outlink_list = novel_outlink_element.getchildren()
@@ -150,12 +151,12 @@ if __name__ == "__main__":
             with open(dst_filename, 'a', encoding='utf-8') as f:
                 f.write('\n\n')
 
+        #抓取小說章節區塊
         if re.search('id="chapterList"', r.text):
-            #抓取小說章節區塊
+            #章節區塊元素的子節點
             chapter_list = html_element.get_element_by_id("chapterList").getchildren()
             
-            #抓沒展開的地方
-            
+            #抓沒展開的章節         
             for element in chapter_list:
                 if element.tag == 'details':
                     chapter_list_b = element.getchildren()
@@ -175,7 +176,7 @@ if __name__ == "__main__":
                                 with open(dst_filename, 'a', encoding='utf-8') as f:
                                     f.write(element_b.attrib['href'] + u' {非站內連結，略過}\n\n')
             
-            #抓展開的地方
+            #抓原本就展開的章節
             for element in chapter_list:
                 if element.tag != 'details':
                     print('-'*50)
