@@ -8,6 +8,7 @@ import json
 import os
 import sys
 
+from lxml import etree
 
 symbol_list = {
     "\\": "-",
@@ -101,21 +102,34 @@ if __name__ == "__main__":
     if novel_flag :
         r = get_with_cookies(url)
         html_element = lxml.html.document_fromstring(r.text)
-
+        
+        '''測試網站內容用
+        html_content = etree.tostring(html_element, pretty_print=True, method="html")
+        html_string = html_content.decode("utf-8")
+        with open('test.txt', 'a', encoding='utf-8') as f:
+            f.write(html_string)
+        '''
+        
+        #抓取書名
         novel_name = html_element.xpath('//h2[@class="p-t-10 text-normal"]')[0].text_content()
         novel_name = escape_symbol(novel_name)
+        print('='*50)
+        print(f'小說名稱：{novel_name}')
         dst_filename = os.path.normpath( current_path + '/' + novel_name + '.txt')
         with open(dst_filename, 'w', encoding='utf-8') as f:
             f.write(u"書名: " + novel_name + "\n")
         with open(dst_filename, 'a', encoding='utf-8') as f:
             f.write(u"URL: " + url)
 
+        #抓取每話
         novel_details_element = html_element.xpath('//ul[@class="list-unstyled mb-2 book-detail"]')[0]
         if novel_details_element.xpath('//ul[@class="list-unstyled mb-2 book-detail"]/li/div'):
             bad_divs = novel_details_element.xpath('//ul[@class="list-unstyled mb-2 book-detail"]/li/div')
             for bad_div in bad_divs:
                 bad_div.getparent().remove(bad_div)
         novel_details = novel_details_element.text_content()
+        print('='*50)
+        print(f'小說細節：\n{novel_details}')
         with open(dst_filename, 'a', encoding='utf-8') as f:
             f.write(novel_details)
 
@@ -128,6 +142,8 @@ if __name__ == "__main__":
 
         if re.search('id="details"', r.text):
             novel_description = html_element.get_element_by_id("details").text_content()
+            print('='*50)
+            print(f'小說介紹：{novel_description}')
             with open(dst_filename, 'a', encoding='utf-8') as f:
                 f.write(novel_description)
         else:
@@ -135,21 +151,46 @@ if __name__ == "__main__":
                 f.write('\n\n')
 
         if re.search('id="chapterList"', r.text):
+            #抓取小說章節區塊
             chapter_list = html_element.get_element_by_id("chapterList").getchildren()
             
+            #抓沒展開的地方
             for element in chapter_list:
-        
+                if element.tag == 'details':
+                    chapter_list_b = element.getchildren()
+                    for element_b in chapter_list_b:
+                        print('-'*50)
+                        print('正在獲取內容')
+                        print(f'本話標題：{element_b.text_content()}')
+
+                        with open(dst_filename, 'a', encoding='utf-8') as f:
+                            f.write(element_b.text_content()+'\n')
+                        
+                        if element_b.tag == 'a':
+                            if re.search(r'esjzone\.cc/forum/\d+/\d+\.html', element_b.attrib['href']):
+                                write_page(element_b.attrib['href'], dst_filename, single_file=True)
+                                print(f'本話內文：{element_b.attrib["href"]}')
+                            else:
+                                with open(dst_filename, 'a', encoding='utf-8') as f:
+                                    f.write(element_b.attrib['href'] + u' {非站內連結，略過}\n\n')
+            
+            #抓展開的地方
+            for element in chapter_list:
+                print('-'*50)
+                print('正在獲取內容')
+                print(f'本話標題：{element.text_content()}')
+
                 with open(dst_filename, 'a', encoding='utf-8') as f:
                     f.write(element.text_content()+'\n')
                 
                 if element.tag == 'a':
-
                     if re.search(r'esjzone\.cc/forum/\d+/\d+\.html', element.attrib['href']):
                         write_page(element.attrib['href'], dst_filename, single_file=True)
+                        print(f'本話內文：{element.attrib["href"]}')
                     else:
                         with open(dst_filename, 'a', encoding='utf-8') as f:
                             f.write(element.attrib['href'] + u' {非站內連結，略過}\n\n')
-
+    
 
     if forum_flag:
         r = get_with_cookies(url)
