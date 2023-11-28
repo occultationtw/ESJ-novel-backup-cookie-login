@@ -37,8 +37,7 @@ ESJZone 小說的備份工具
 
 範例：https://www.esjzone.cc/forum/1599746513/121688.html
 
-`pyhon esjbackup.py https://www.esjzone.cc/forum/1599746513/121688.html`
-
-
+`python esjbackup.py https://www.esjzone.cc/forum/1599746513/121688.html`
+  
+　
 僅保存該單篇的  txt 文字檔。
-
